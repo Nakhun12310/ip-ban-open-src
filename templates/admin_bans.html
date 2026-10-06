@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+    <title>ban panel</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        form {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>ban panel</h1>
+
+<h2>ban ip / network</h2>
+
+<form method="POST" action="{{ url_for('add_ban') }}">
+    <input
+        name="network"
+        placeholder="ip or cidr e.g. 203.0.113.10"
+        required
+    >
+
+    <input
+        name="reason"
+        placeholder="reason"
+    >
+
+    <button type="submit">
+        ban
+    </button>
+</form>
+
+<h2>active bans</h2>
+
+<table>
+    <tr>
+        <th>network</th>
+        <th>reason</th>
+        <th>created</th>
+        <th>action</th>
+    </tr>
+
+    {% for ban in bans %}
+    <tr>
+        <td>{{ ban.network }}</td>
+        <td>{{ ban.reason or "—" }}</td>
+        <td>{{ ban.created_at }}</td>
+
+        <td>
+            <form
+                method="POST"
+                action="{{ url_for('delete_ban', ban_id=ban.id) }}"
+            >
+                <button type="submit">
+                    unban
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="4">
+            no active bans
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>accounts</h2>
+
+<table>
+    <tr>
+        <th>username</th>
+        <th>status</th>
+        <th>ips</th>
+        <th>action</th>
+    </tr>
+
+    {% for user in users %}
+    <tr>
+        <td>{{ user.username }}</td>
+
+        <td>
+            {% if user.is_banned %}
+                banned
+            {% else %}
+                active
+            {% endif %}
+        </td>
+
+        <td>
+            {% for ip in user.ips %}
+                {{ ip.ip }}<br>
+            {% else %}
+                none
+            {% endfor %}
+        </td>
+
+        <td>
+            {% if user.is_banned %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('unban_user', user_id=user.id) }}"
+                >
+                    <button type="submit">
+                        unban account
+                    </button>
+                </form>
+
+            {% else %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('ban_user', user_id=user.id) }}"
+                >
+                    <button type="submit">
+                        ban account
+                    </button>
+                </form>
+
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
