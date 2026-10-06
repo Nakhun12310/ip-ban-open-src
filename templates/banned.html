@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+    <title>access denied</title>
+</head>
+
+<body>
+    <h1>access denied</h1>
+
+    <p>this account or network has been blocked.</p>
+
+    {% if ban and ban.reason %}
+        <p>reason: {{ ban.reason }}</p>
+    {% endif %}
+</body>
+</html>
